@@ -1,11 +1,11 @@
-import fetch from 'node-fetch';
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Nur POST-Anfragen erlaubt' });
   }
 
   const { messages, model } = req.body;
+
+  console.log("Empfangene Daten:", messages, model); // <- Debug-Ausgabe
 
   if (!messages || !Array.isArray(messages) || messages.length === 0 || !model) {
     return res.status(400).json({ error: 'Fehlende oder ungültige Parameter' });
@@ -18,10 +18,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`
       },
-      body: JSON.stringify({
-        model,
-        messages
-      }),
+      body: JSON.stringify({ model, messages }),
     });
 
     const data = await response.json();
