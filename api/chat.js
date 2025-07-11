@@ -1,5 +1,3 @@
-// api/chat.js
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Nur POST-Anfragen erlaubt' });
@@ -7,8 +5,8 @@ export default async function handler(req, res) {
 
   const { messages, model } = req.body;
 
-  if (!messages || !model) {
-    return res.status(400).json({ error: 'Fehlende Parameter' });
+  if (!messages || !Array.isArray(messages) || messages.length === 0 || !model) {
+    return res.status(400).json({ error: 'Fehlende oder ungültige Parameter' });
   }
 
   try {
@@ -18,7 +16,10 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`
       },
-      body: JSON.stringify({ model, messages }),
+      body: JSON.stringify({
+        model,
+        messages
+      }),
     });
 
     if (!response.ok) {
@@ -27,8 +28,8 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json();
-    res.status(200).json(data);
+    return res.status(200).json(data);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 }
